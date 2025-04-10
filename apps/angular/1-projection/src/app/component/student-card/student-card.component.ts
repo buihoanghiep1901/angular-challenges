@@ -8,20 +8,10 @@ import { ListItemComponent } from '../../ui/list-item/list-item.component';
 @Component({
   selector: 'app-student-card',
   template: `
-    <app-card
-      [list]="students"
-      (addItem)="onAddItem()"
-      customClass="bg-light-green">
-      <img src="assets/img/student.webp"width="200px" />
-
-      <ng-template #listItem let-item>
-        <app-list-item
-          [name]="item.firstName"
-          [id]="item.id"
-          (deleteItem)="onDeleteItem(item.id)"
-        >
-        </app-list-item>
-      </ng-template>
+    <app-card [list]="students" [type]="cardType" customClass="bg-light-green" (onAdd)="addNewItem()">
+      <header class="text-center text-2xl font-bold">
+        <img src="assets/img/student.webp" width="200px" />
+      </header>
     </app-card>
   `,
   standalone: true,
@@ -47,12 +37,7 @@ export class StudentCardComponent implements OnInit {
 
     this.store.students$.subscribe((s) => (this.students = s));
   }
-
-  onAddItem(){
-    this.store.addOne(randStudent());
-  }
-
-  onDeleteItem(id: number){
-    this.store.deleteOne(id);
-  }
+    addNewItem() {
+        this.store.addOne(randStudent());
+    }
 }

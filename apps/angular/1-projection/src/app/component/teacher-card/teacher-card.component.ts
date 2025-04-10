@@ -1,5 +1,8 @@
 import { Component, OnInit } from '@angular/core';
-import { FakeHttpService, randTeacher } from '../../data-access/fake-http.service';
+import {
+  FakeHttpService,
+  randTeacher,
+} from '../../data-access/fake-http.service';
 import { TeacherStore } from '../../data-access/teacher.store';
 import { Teacher } from '../../model/teacher.model';
 import { CardComponent } from '../../ui/card/card.component';
@@ -10,20 +13,18 @@ import { ListItemComponent } from '../../ui/list-item/list-item.component';
   template: `
     <app-card
       [list]="teachers"
-      (addItem)="onAddItem()"
-      customClass="bg-light-red">
-      <img src="assets/img/teacher.png" width="200px" #avatar/>
-
-      <ng-template #listItem let-item>
-        <app-list-item
-          [name]="item.firstName"
-          [id]="item.id"
-          (deleteItem)="onDeleteItem(item.id)"
-        >
+      customClass="bg-light-red"
+      (onAdd)="addNewItem()"
+      [itemTemplate]="rowRef">
+      <header class="text-center text-2xl font-bold">
+        <img src="assets/img/teacher.png" width="200px" />
+      </header>
+      <ng-template #rowRef let-item>
+        <app-list-item [item]="item" (delete)="delete($event)">
         </app-list-item>
       </ng-template>
-
     </app-card>
+
   `,
   styles: [
     `
@@ -48,11 +49,11 @@ export class TeacherCardComponent implements OnInit {
 
     this.store.teachers$.subscribe((t) => (this.teachers = t));
   }
-  onAddItem(){
+  addNewItem() {
     this.store.addOne(randTeacher());
   }
 
-  onDeleteItem(id: number){
+  delete(id: number) {
     this.store.deleteOne(id);
   }
 }
