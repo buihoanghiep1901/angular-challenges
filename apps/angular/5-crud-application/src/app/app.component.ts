@@ -1,51 +1,48 @@
 import { CommonModule } from '@angular/common';
-import { HttpClient } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
-import { randText } from '@ngneat/falso';
+import { Todo } from './model';
+import { TodoService } from './todo.service';
 
 @Component({
   standalone: true,
   imports: [CommonModule],
   selector: 'app-root',
   template: `
-    <div *ngFor="let todo of todos">
+    <div *ngFor="let todo of todos" class="mb-20">
       {{ todo.title }}
-      <button (click)="update(todo)">Update</button>
+      <div class="mt-20">
+        <button (click)="update(todo.id)" class="mr-20">Update</button>
+        <button (click)="delete(todo.id)">Delete</button>
+      </div>
     </div>
   `,
   styles: [],
 })
 export class AppComponent implements OnInit {
-  todos!: any[];
+  todos!: Todo[];
 
-  constructor(private http: HttpClient) {}
+  constructor(private todoService: TodoService) {}
 
   ngOnInit(): void {
-    this.http
-      .get<any[]>('https://jsonplaceholder.typicode.com/todos')
-      .subscribe((todos) => {
-        this.todos = todos;
-      });
+    this.todoService.getTodos().subscribe((todos) => {
+      this.todos = todos;
+    });
   }
 
-  update(todo: any) {
-    this.http
-      .put<any>(
-        `https://jsonplaceholder.typicode.com/todos/${todo.id}`,
-        JSON.stringify({
-          todo: todo.id,
-          title: randText(),
-          body: todo.body,
-          userId: todo.userId,
-        }),
-        {
-          headers: {
-            'Content-type': 'application/json; charset=UTF-8',
-          },
-        },
-      )
-      .subscribe((todoUpdated: any) => {
-        this.todos[todoUpdated.id - 1] = todoUpdated;
+  public update(id: number) {
+    this.todoService.updateTodo(id).subscribe((todoUpdated: Todo) => {
+      this.todos = this.todos.map((t) => {
+        if (t.id === todoUpdated.id) {
+          return todoUpdated;
+        }
+        return t;
       });
+    });
+  }
+
+  public delete(id: number) {
+    this.todoService.deleteTodo(id).subscribe(() => {
+      this.todos = this.todos.filter((t) => t.id !== id);
+    });
   }
 }
